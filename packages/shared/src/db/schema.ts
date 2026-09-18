@@ -86,8 +86,9 @@ export const orders = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     // better-auth owns the user table and issues text ids, so this is deliberately
     // not a uuid and deliberately not a foreign key — the auth schema is generated
-    // by that library and is not ours to reference from here.
-    userId: text("user_id").notNull(),
+    // by that library and is not ours to reference from here. Nullable because
+    // guests can check out; the email below is what identifies a guest order.
+    userId: text("user_id"),
     status: orderStatus("status").notNull().default("pending"),
     totalCents: integer("total_cents").notNull(),
     email: text("email").notNull(),

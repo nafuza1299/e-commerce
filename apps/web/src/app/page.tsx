@@ -1,20 +1,11 @@
 import Link from "next/link";
 import { FilterRail, priceBandLabel } from "@/components/filter-rail";
 import { ProductTile } from "@/components/product-tile";
-import { SiteHeader } from "@/components/site-header";
+import { StoreShell } from "@/components/store-shell";
 import { SortSelect } from "@/components/sort-select";
 import { ApiUnavailableError, fetchCatalog, fetchCategories } from "@/lib/api";
 import { asList, toQuery, withCursor, type Params } from "@/lib/search-params";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Layout,
-  LayoutContent,
-  LayoutFooter,
-  LayoutHeader,
-  LayoutSider,
-} from "@/ui";
+import { Card, CardBody, CardHeader, Layout, LayoutContent, LayoutSider } from "@/ui";
 
 /*
   A server component. The catalog is public, read-only and benefits from arriving as
@@ -84,11 +75,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   })();
 
   return (
-    <Layout>
-      <LayoutHeader>
-        <SiteHeader categories={categories} activeCategories={activeCategories} query={query} />
-      </LayoutHeader>
-
+    <StoreShell categories={categories} activeCategories={activeCategories} query={query}>
       <Layout hasSider>
         <LayoutSider width={260}>
           <FilterRail
@@ -165,19 +152,6 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
           </div>
         </LayoutContent>
       </Layout>
-
-      <LayoutFooter>
-        <div className="mx-auto max-w-7xl px-4 text-sm text-text-muted">
-          A portfolio project. Built on{" "}
-          <a
-            href="https://github.com/nafuza1299/catalyst-ui"
-            className="text-primary hover:underline"
-          >
-            catalyst-ui
-          </a>
-          . Not a real store — nothing here is for sale.
-        </div>
-      </LayoutFooter>
-    </Layout>
+    </StoreShell>
   );
 }

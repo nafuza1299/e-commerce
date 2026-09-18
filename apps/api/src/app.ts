@@ -11,6 +11,7 @@ import {
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import { env } from "./env";
+import { orderRoutes } from "./routes/orders";
 import { productRoutes } from "./routes/products";
 
 export const buildApp = async () => {
@@ -71,7 +72,10 @@ export const buildApp = async () => {
           "Every schema in this document is generated from the same Zod objects that validate the requests at runtime, so the two cannot drift.",
       },
       servers: [{ url: `http://localhost:${env.PORT}` }],
-      tags: [{ name: "catalog", description: "Public storefront reads" }],
+      tags: [
+        { name: "catalog", description: "Public storefront reads" },
+        { name: "orders", description: "Checkout and order lookup" },
+      ],
     },
     transform: jsonSchemaTransform,
   });
@@ -80,6 +84,7 @@ export const buildApp = async () => {
   app.get("/health", { schema: { hide: true } }, async () => ({ ok: true }));
 
   await app.register(productRoutes);
+  await app.register(orderRoutes);
 
   return app;
 };

@@ -16,12 +16,12 @@ OpenAPI docs, and the Next shell with catalyst-ui vendored and rendering under S
 | | |
 |---|---|
 | ✅ `packages/shared` | Drizzle tables → drizzle-zod → validation, OpenAPI, form resolvers, client types |
-| ✅ `apps/api` | `GET /products` (keyset pagination, filters, sorts), `GET /products/:slug`, `GET /categories`, `/docs`, seed |
+| ✅ `apps/api` | Catalog reads with keyset pagination, `GET /categories`, `POST /orders` (guest checkout, server-side pricing, transactional stock), `GET /orders/:id`, `/docs`, seed |
 | ✅ `apps/web` | Vendored catalyst-ui behind one `"use client"` boundary; themed, SSR-safe, no hydration warnings |
 | ✅ Catalog | Retail shell — search, department nav, filter rail, sort, paginated grid |
-| ⬜ Storefront | Product detail, cart (Zustand + persist), checkout |
+| ✅ Storefront | Product detail, cart (Zustand + persist), checkout (react-hook-form + the shared schema), order confirmation |
 | ⬜ Admin | Product CRUD, order table |
-| ⬜ Auth | better-auth; payment is deliberately faked (see below) |
+| ⬜ Auth | better-auth; orders attach to a user when signed in. Payment is deliberately faked (see below) |
 
 ## The point of it
 
@@ -46,7 +46,18 @@ monorepo: break a schema and *both* the API build and the web typecheck fail tog
 The most interesting thing in that layer is what `checkoutInput` leaves out. The client
 sends product ids and quantities and never a price; the server re-reads every price
 before it totals anything. A test asserts a client-supplied price is dropped rather than
-trusting that it is.
+trusting that it is, and the pricing itself lives in a pure function
+([`apps/api/src/pricing.ts`](apps/api/src/pricing.ts)) with no database in reach, so
+the money path is tested in isolation — including the case where a cart lists the same
+product twice and the stock check has to see the merged total.
+
+The order insert then does the thing that separates a demo from a store: stock is
+decremented with `WHERE stock >= quantity` in the same statement, inside a transaction,
+so two shoppers racing for the last unit cannot both get it. Zero rows updated means
+the snapshot was stale, the transaction rolls back, and the caller gets a 409.
+
+That same `checkoutInput` — minus `items` — is the checkout form's resolver. The rules a
+shopper sees are the rules the API enforces, because they are the same object.
 
 ### Taking a client-only component library server-side
 

@@ -78,13 +78,20 @@ export const categoryList = z.array(categoryDto);
   so it can render a subtotal; that number is a display convenience and is never
   authoritative.
 */
+// Messages are written for the person filling in the form. The same schema drives
+// the API's 400 responses, so they read sensibly there too — and they are written
+// once, not once per side.
 export const checkoutInput = z.object({
-  email: z.email(),
-  shippingName: z.string().trim().min(1).max(120),
-  shippingLine1: z.string().trim().min(1).max(200),
-  shippingCity: z.string().trim().min(1).max(120),
-  shippingPostalCode: z.string().trim().min(1).max(20),
-  shippingCountry: z.string().trim().length(2).toUpperCase(),
+  email: z.email("Enter a valid email address"),
+  shippingName: z.string().trim().min(1, "Enter your name").max(120, "Too long"),
+  shippingLine1: z.string().trim().min(1, "Enter your address").max(200, "Too long"),
+  shippingCity: z.string().trim().min(1, "Enter your city").max(120, "Too long"),
+  shippingPostalCode: z.string().trim().min(1, "Enter your postal code").max(20, "Too long"),
+  shippingCountry: z
+    .string()
+    .trim()
+    .length(2, "Use the 2-letter country code, e.g. ID or US")
+    .toUpperCase(),
   items: z
     .array(
       z.object({

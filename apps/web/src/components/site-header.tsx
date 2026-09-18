@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CategoryDto } from "@repo/shared/schemas";
+import { CartButton } from "@/components/cart-button";
 import { ThemeToggleSlot } from "@/components/theme-toggle-slot";
 import { Button, MenuBar, MenuBarActions, MenuBarBrand, MenuBarNav } from "@/ui";
 
@@ -15,14 +16,6 @@ import { Button, MenuBar, MenuBarActions, MenuBarBrand, MenuBarNav } from "@/ui"
   its own element underneath rather than inside Nav — on a phone the departments stay
   reachable as a scrolling strip instead of disappearing into a hamburger.
 */
-
-const CartIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
-    <circle cx="9" cy="20" r="1.5" />
-    <circle cx="18" cy="20" r="1.5" />
-    <path d="M2 3h3l2.4 12.2a1.5 1.5 0 0 0 1.5 1.2h8.7a1.5 1.5 0 0 0 1.5-1.2L21 7H6" />
-  </svg>
-);
 
 export function SiteHeader({
   categories,
@@ -63,9 +56,7 @@ export function SiteHeader({
 
         <MenuBarActions>
           <ThemeToggleSlot />
-          <Button variant="ghost" iconOnly aria-label="Cart, 0 items">
-            <CartIcon />
-          </Button>
+          <CartButton />
         </MenuBarActions>
       </MenuBar>
 

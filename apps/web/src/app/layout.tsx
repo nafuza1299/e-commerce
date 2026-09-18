@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { CartHydration } from "@/components/cart-hydration";
 import { InlineScript } from "@/components/inline-script";
 import { ThemeProvider } from "@/ui";
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <CartHydration />
       </body>
     </html>
   );
