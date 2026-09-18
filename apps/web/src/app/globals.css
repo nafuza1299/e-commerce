@@ -1,0 +1,25 @@
+/*
+  tokens.css is vendored from catalyst-ui unchanged — it opens with
+  @import "tailwindcss", declares the @custom-variant that makes [data-theme="dark"]
+  the dark selector, and already styles body from the tokens. Nothing here restates
+  any of that.
+*/
+@import "../catalyst-ui/styles/tokens.css";
+
+/*
+  Tailwind v4 finds class names by scanning sources near the CSS entry. Declaring
+  the root explicitly because the vendored library sits outside app/, and a missed
+  source is silent: the classes simply never make it into the stylesheet and the
+  components render unstyled with no error anywhere.
+*/
+@source "../";
+
+/*
+  Brand overrides go here, never in the vendored tokens.css — the copy has to stay
+  byte-identical to upstream. Scope any :root override as
+  `:root:not([data-theme="dark"])`, because a bare :root ties [data-theme="dark"]
+  on specificity and, coming later in the cascade, would win in dark mode too.
+
+  Nothing is overridden yet, so there is nothing here. That is deliberate: an
+  override block kept "just in case" is the dead code that outlives its reason.
+*/

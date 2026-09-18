@@ -1,0 +1,42 @@
+{
+  "name": "catalyst-commerce",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "E-commerce storefront and admin on Next.js + Fastify, sharing one set of Zod schemas. Third consumer of catalyst-ui, and the first server-rendered one.",
+  "author": "nafuza1299",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace=@repo/api",
+    "dev:web": "npm run dev --workspace=@repo/web",
+    "build": "npm run build --workspace=@repo/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:push": "npm run db:push --workspace=@repo/api",
+    "db:seed": "npm run db:seed --workspace=@repo/api"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.13.3",
+    "concurrently": "^10.0.5",
+    "oxlint": "^1.81.0",
+    "typescript": "^5.7.0",
+    "vitest": "^5.0.0"
+  },
+  "comment:allowScripts": "npm 12 blocks postinstall scripts unless listed. esbuild's fetches its platform binary, so tsx (0.25.12), vitest (0.28.2) and drizzle-kit (0.18.20) will not run without these.",
+  "allowScripts": {
+    "esbuild@0.18.20": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true
+  }
+}

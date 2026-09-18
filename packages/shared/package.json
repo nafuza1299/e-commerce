@@ -1,0 +1,22 @@
+{
+  "name": "@repo/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "The one place the domain is defined: Drizzle tables, and the Zod schemas derived from them.",
+  "exports": {
+    "./schemas": "./src/schemas/index.ts",
+    "./db": "./src/db/schema.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "drizzle-zod": "^0.8.3",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

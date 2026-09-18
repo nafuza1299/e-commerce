@@ -1,0 +1,4 @@
+# Normalise line endings in the repository to LF regardless of the committer's OS.
+# Without this, a Windows checkout with autocrlf=true and a macOS/Linux one disagree
+# on every file, and the first cross-platform diff is the whole tree.
+* text=auto eol=lf

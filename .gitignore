@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+
+# Real secrets. .env.example is committed and is the documented shape.
+.env
+.env.*
+!.env.example
+
+*.tsbuildinfo
+.DS_Store
