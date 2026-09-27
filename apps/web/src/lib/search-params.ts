@@ -20,13 +20,21 @@ const toSearch = (params: Params): URLSearchParams => {
 export const asList = (value: string | string[] | undefined): string[] =>
   value === undefined ? [] : Array.isArray(value) ? value : [value];
 
+/**
+ * The catalog URL for a query. `/` is prerendered, and the client router reuses a static
+ * page for any query string, so every filtered view has to live on its own path.
+ */
+export const catalogHref = (search: URLSearchParams): string => {
+  const query = search.toString();
+  return query ? `/browse?${query}` : "/";
+};
+
 const href = (search: URLSearchParams): string => {
   // Every filter change returns to page one. A cursor encodes a position within one
   // specific ordered, filtered result set — carrying it across a filter change points
   // into a set that no longer exists, and the page silently starts from the wrong row.
   search.delete("cursor");
-  const query = search.toString();
-  return query ? `/?${query}` : "/";
+  return catalogHref(search);
 };
 
 /** Href with `value` added to, or removed from, a repeatable key such as `category`. */
@@ -67,8 +75,7 @@ export const withParams = (params: Params, changes: Record<string, string | null
 export const withCursor = (params: Params, cursor: string): string => {
   const search = toSearch(params);
   search.set("cursor", cursor);
-  const query = search.toString();
-  return query ? `/?${query}` : "/";
+  return catalogHref(search);
 };
 
 export const toQuery = toSearch;

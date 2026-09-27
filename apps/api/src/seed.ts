@@ -73,6 +73,8 @@ const main = async () => {
     slug: slugify(name),
     name,
     description: `${name}. Seed data for the catalyst-commerce demo storefront.`,
+    // Root-relative: the files live in apps/web/public/products, served by the web app.
+    imageUrl: `/products/${slugify(name)}.svg`,
     priceCents,
     stock,
     status,

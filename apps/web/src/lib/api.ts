@@ -38,14 +38,16 @@ export class ApiError extends Error {
   This is also the other half of what makes @repo/shared worth having: the exact
   object that validates the response on the server validates it again on the client.
 */
+// Uncached unless a caller passes its own init. Merging instead of replacing would leave
+// `cache: "no-store"` beside a caller's `next.revalidate`, which Next rejects as a conflict.
 const request = async <T>(
   path: string,
   parse: (data: unknown) => T,
-  init?: RequestInit,
+  init: RequestInit = { cache: "no-store" },
 ): Promise<T> => {
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { cache: "no-store", ...init });
+    response = await fetch(`${API_URL}${path}`, init);
   } catch (cause) {
     throw new ApiUnavailableError(`Could not reach the API at ${API_URL}`, { cause });
   }
@@ -63,20 +65,24 @@ const request = async <T>(
   return parse(await response.json());
 };
 
-export const fetchCatalog = (search: URLSearchParams): Promise<CatalogPage> =>
-  request(`/products?${search.toString()}`, (data) => catalogPage.parse(data));
+/** Products per catalog page: the static first page and every page scrolled in after it. */
+export const CATALOG_PAGE_SIZE = 15;
+
+export const fetchCatalog = (search: URLSearchParams, init?: RequestInit): Promise<CatalogPage> =>
+  request(`/products?${search.toString()}`, (data) => catalogPage.parse(data), init);
 
 export const fetchProduct = (slug: string): Promise<ProductDto> =>
   request(`/products/${encodeURIComponent(slug)}`, (data) => productDto.parse(data));
 
-export const fetchCategories = (): Promise<CategoryDto[]> =>
-  request("/categories", (data) => categoryList.parse(data));
+export const fetchCategories = (init?: RequestInit): Promise<CategoryDto[]> =>
+  request("/categories", (data) => categoryList.parse(data), init);
 
 export const fetchOrder = (id: string): Promise<OrderDto> =>
   request(`/orders/${encodeURIComponent(id)}`, (data) => orderDto.parse(data));
 
 export const placeOrder = (input: CheckoutInput): Promise<OrderDto> =>
   request("/orders", (data) => orderDto.parse(data), {
+    cache: "no-store",
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

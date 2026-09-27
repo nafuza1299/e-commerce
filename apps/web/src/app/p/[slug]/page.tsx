@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/add-to-cart";
 import { StoreShell } from "@/components/store-shell";
 import { NotFoundError, fetchProduct, formatPrice } from "@/lib/api";
+import { catalogHref } from "@/lib/search-params";
 import { LayoutContent, Tag } from "@/ui";
 
 type Params = Promise<{ slug: string }>;
@@ -46,7 +47,10 @@ export default async function ProductPage({ params }: { params: Params }) {
             {product.categories[0] ? (
               <>
                 <span className="mx-2">/</span>
-                <Link href={`/?category=${product.categories[0].slug}`} className="hover:text-text">
+                <Link
+                  href={catalogHref(new URLSearchParams({ category: product.categories[0].slug }))}
+                  className="hover:text-text"
+                >
                   {product.categories[0].name}
                 </Link>
               </>
@@ -59,7 +63,14 @@ export default async function ProductPage({ params }: { params: Params }) {
             <div className="rounded-lg border border-border bg-surface p-6">
               {product.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.imageUrl} alt="" className="aspect-square w-full rounded-md object-cover" />
+                <img
+                  src={product.imageUrl}
+                  alt=""
+                  width={400}
+                  height={400}
+                  fetchPriority="high"
+                  className="aspect-square w-full rounded-md object-cover"
+                />
               ) : (
                 <div
                   aria-hidden="true"
@@ -74,7 +85,10 @@ export default async function ProductPage({ params }: { params: Params }) {
               <h1 className="text-2xl font-semibold">{product.name}</h1>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {product.categories.map((category) => (
-                  <Link key={category.slug} href={`/?category=${category.slug}`}>
+                  <Link
+                    key={category.slug}
+                    href={catalogHref(new URLSearchParams({ category: category.slug }))}
+                  >
                     <Tag size="sm" color="blue">
                       {category.name}
                     </Tag>
