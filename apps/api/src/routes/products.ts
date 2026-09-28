@@ -68,6 +68,8 @@ const selection = {
   description: products.description,
   priceCents: products.priceCents,
   imageUrl: products.imageUrl,
+  imageCreditName: products.imageCreditName,
+  imageCreditUrl: products.imageCreditUrl,
   stock: products.stock,
   createdAt: products.createdAt,
 };
@@ -104,6 +106,13 @@ const categoriesFor = async (ids: string[]) => {
 };
 
 export const productRoutes: FastifyPluginAsyncZod = async (app) => {
+  // Every response here carries a live price and stock count. No browser, proxy or
+  // CDN may serve one from cache. onRequest so it holds for error responses too;
+  // the hook is scoped to this plugin, so other routes are unaffected.
+  app.addHook("onRequest", async (_request, reply) => {
+    reply.header("Cache-Control", "no-store");
+  });
+
   app.get(
     "/products",
     {

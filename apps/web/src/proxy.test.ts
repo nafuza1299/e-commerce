@@ -15,13 +15,10 @@ describe("proxy", () => {
     expect(res.headers.get("location")).toBe("http://shop.test/browse?category=audio&sort=price-asc");
   });
 
-  it("sends a bare /browse to the one unfiltered page", () => {
-    const res = run("http://shop.test/browse");
-    expect(res.status).toBe(308);
-    expect(res.headers.get("location")).toBe("http://shop.test/");
-  });
-
-  it("leaves a filtered /browse alone", () => {
+  // The router prefetches /browse's route tree without a query; redirecting it would
+  // hand the router the tree for / instead.
+  it("leaves /browse alone, with or without a query", () => {
+    expect(run("http://shop.test/browse").headers.get("location")).toBeNull();
     expect(run("http://shop.test/browse?q=desk").headers.get("location")).toBeNull();
   });
 });

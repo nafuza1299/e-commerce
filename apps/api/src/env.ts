@@ -16,6 +16,11 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().default(3001),
   WEB_ORIGIN: z.string().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  // Seed-only. Unset is fine: products keep the initials placeholder.
+  PEXELS_API_KEY: z.string().optional(),
+  // Seed-only, shared with apps/web's own REVALIDATE_SECRET. Unset is fine: the
+  // seed skips busting the catalog cache and callers just wait out the ISR window.
+  REVALIDATE_SECRET: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

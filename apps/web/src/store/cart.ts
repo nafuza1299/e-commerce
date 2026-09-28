@@ -47,7 +47,8 @@ export const useCart = create<CartState>()(
           return {
             lines: state.lines.map((l) =>
               l.productId === line.productId
-                ? { ...l, quantity: Math.min(MAX_PER_LINE, l.quantity + quantity) }
+                ? // Spread the incoming line so a re-add also picks up a changed price.
+                  { ...l, ...line, quantity: Math.min(MAX_PER_LINE, l.quantity + quantity) }
                 : l,
             ),
           };

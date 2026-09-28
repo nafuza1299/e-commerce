@@ -31,7 +31,7 @@ const num = (value: string | string[] | undefined): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-export async function CatalogView({ params, init }: { params: Params; init?: RequestInit }) {
+export async function CatalogView({ params }: { params: Params }) {
   const activeCategories = asList(params.category);
   const query = one(params.q);
   const sort = one(params.sort) ?? "newest";
@@ -45,7 +45,7 @@ export async function CatalogView({ params, init }: { params: Params; init?: Req
   let categories: Awaited<ReturnType<typeof fetchCategories>> = [];
   let unreachable = false;
   try {
-    [page, categories] = await Promise.all([fetchCatalog(search, init), fetchCategories(init)]);
+    [page, categories] = await Promise.all([fetchCatalog(search), fetchCategories()]);
   } catch (error) {
     // Only "the API is not running" degrades softly — it is the normal state on a fresh
     // clone. Anything else is a real fault and belongs in the error boundary.
@@ -75,6 +75,15 @@ export async function CatalogView({ params, init }: { params: Params; init?: Req
 
   const items = page?.items ?? [];
   const paging = params.cursor !== undefined;
+  // Names come from the fetched list, not the URL, so an unknown slug is ignored
+  // rather than echoed into the heading.
+  const categoryNames = categories
+    .filter((c) => activeCategories.includes(c.slug))
+    .map((c) => c.name)
+    .join(", ");
+  const heading = query
+    ? `Results for “${query}”${categoryNames ? ` in ${categoryNames}` : ""}`
+    : categoryNames || "All products";
   const firstPageHref = (() => {
     const first = toQuery(params);
     first.delete("cursor");
@@ -103,9 +112,7 @@ export async function CatalogView({ params, init }: { params: Params; init?: Req
           <div className="mx-auto max-w-7xl px-4 py-6">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
               <div>
-                <h1 className="text-xl font-semibold">
-                  {query ? `Results for “${query}”` : "All products"}
-                </h1>
+                <h1 className="text-xl font-semibold">{heading}</h1>
                 <p className="mt-0.5 text-sm text-text-muted">
                   {/* Keyset pagination deliberately never runs a COUNT over the filtered
                       set, so "+" is as much as can honestly be claimed about a total. */}

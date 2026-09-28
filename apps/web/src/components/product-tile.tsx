@@ -1,46 +1,14 @@
 import Link from "next/link";
 import type { ProductDto } from "@repo/shared/schemas";
+import { ProductImage } from "@/components/product-image";
 import { formatPrice } from "@/lib/api";
 import { Card, CardBody, Tag } from "@/ui";
 
 /*
-  A product without an imageUrl still gets a thumbnail, because a grid with holes reads
-  as broken rather than as unfinished. The placeholder is drawn from the product's own
-  initials on a token background: deterministic, themed in both modes, and no network
-  request — an external placeholder service would be a third-party dependency on every
-  tile and a blank grid the moment it rate-limits.
+  imageUrl is resolved once by the seed — a Pexels photo when PEXELS_API_KEY is set,
+  otherwise a local SVG in apps/web/public/products — so rendering never calls an image
+  API and cannot be rate-limited. ProductImage draws the initials if either is missing.
 */
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter((w) => /^[A-Za-z0-9]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0]!.toUpperCase())
-    .join("");
-
-// The first row holds the LCP image, so it loads eagerly at high priority. Everything
-// else uses native lazy loading, whose viewport threshold adapts to connection speed.
-const Thumb = ({ product, priority }: { product: ProductDto; priority: boolean }) =>
-  product.imageUrl ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={product.imageUrl}
-      alt=""
-      width={400}
-      height={400}
-      loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
-      className="aspect-square w-full rounded-md object-cover"
-    />
-  ) : (
-    <div
-      aria-hidden="true"
-      className="flex aspect-square w-full items-center justify-center rounded-md bg-surface-hover text-2xl font-semibold text-text-muted"
-    >
-      {initials(product.name)}
-    </div>
-  );
 
 export function ProductTile({
   product,
@@ -55,7 +23,7 @@ export function ProductTile({
     <Card as="article" interactive className="h-full">
       <CardBody>
         <Link href={`/p/${product.slug}`} className="block">
-          <Thumb product={product} priority={priority} />
+          <ProductImage src={product.imageUrl} name={product.name} priority={priority} />
           {/* line-clamp keeps every tile the same height so the grid stays on a
               baseline no matter how long a product name runs. */}
           <h3 className="mt-3 line-clamp-2 text-sm font-medium hover:text-primary">
