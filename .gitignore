@@ -5,6 +5,7 @@ out/
 coverage/
 test-results/
 playwright-report/
+graphify-out/
 
 # Real secrets. .env.example is committed and is the documented shape.
 .env

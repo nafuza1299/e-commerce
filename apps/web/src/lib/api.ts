@@ -74,6 +74,9 @@ const request = async <T>(
   return parse(await response.json());
 };
 
+/** Products per catalog page: the static first page and every page scrolled in after it. */
+export const CATALOG_PAGE_SIZE = 15;
+
 // A ~60s-stale price or stock badge on the grid is a normal e-commerce trade-off.
 // It never reaches the trust boundary: ProductBuyBox re-fetches this same product
 // live on mount, and checkout re-verifies server-side regardless.

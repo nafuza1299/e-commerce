@@ -93,7 +93,7 @@ const slugify = (name: string) =>
 
 const main = async () => {
   const key = env.PEXELS_API_KEY;
-  if (!key) console.log("PEXELS_API_KEY not set; products keep the initials placeholder.");
+  if (!key) console.log("PEXELS_API_KEY not set; products use the local SVGs.");
   // Before the truncate, so a slow or failing network cannot leave the tables emptied.
   const images = await Promise.all(
     ITEMS.map(([name, , , , , query]) => (key ? imageFor(key, query, slugify(name)) : null)),
@@ -115,6 +115,9 @@ const main = async () => {
     slug: slugify(name),
     name,
     description: `${name}. Seed data for the catalyst-commerce demo storefront.`,
+    // Fallback when there is no Pexels photo: a root-relative SVG from
+    // apps/web/public/products, served by the web app. `...images[i]` overrides it.
+    imageUrl: `/products/${slugify(name)}.svg`,
     priceCents,
     stock,
     status,
@@ -135,7 +138,7 @@ const main = async () => {
 
   const active = ITEMS.filter(([, , , , s]) => s === "active").length;
   console.log(
-    `Seeded ${insertedCategories.length} categories and ${insertedProducts.length} products (${active} active, ${images.filter(Boolean).length} with images).`,
+    `Seeded ${insertedCategories.length} categories and ${insertedProducts.length} products (${active} active, ${images.filter(Boolean).length} with Pexels photos).`,
   );
 
   await revalidateCatalog();

@@ -5,6 +5,7 @@ import { ProductBuyBox } from "@/components/product-buy-box";
 import { ProductImage } from "@/components/product-image";
 import { StoreShell } from "@/components/store-shell";
 import { NotFoundError, fetchProduct } from "@/lib/api";
+import { catalogHref } from "@/lib/search-params";
 import { LayoutContent, Tag } from "@/ui";
 
 type Params = Promise<{ slug: string }>;
@@ -39,7 +40,10 @@ export default async function ProductPage({ params }: { params: Params }) {
             {product.categories[0] ? (
               <>
                 <span className="mx-2">/</span>
-                <Link href={`/?category=${product.categories[0].slug}`} className="hover:text-text">
+                <Link
+                  href={catalogHref(new URLSearchParams({ category: product.categories[0].slug }))}
+                  className="hover:text-text"
+                >
                   {product.categories[0].name}
                 </Link>
               </>
@@ -66,7 +70,10 @@ export default async function ProductPage({ params }: { params: Params }) {
               <h1 className="text-2xl font-semibold">{product.name}</h1>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {product.categories.map((category) => (
-                  <Link key={category.slug} href={`/?category=${category.slug}`}>
+                  <Link
+                    key={category.slug}
+                    href={catalogHref(new URLSearchParams({ category: category.slug }))}
+                  >
                     <Tag size="sm" color="blue">
                       {category.name}
                     </Tag>

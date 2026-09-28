@@ -19,10 +19,13 @@ export function ProductImage({
   src,
   name,
   large = false,
+  priority = false,
 }: {
   src: string | null;
   name: string;
   large?: boolean;
+  /** The first row of catalog tiles: above the fold, so it competes for the LCP. */
+  priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -52,9 +55,11 @@ export function ProductImage({
         src={src}
         alt=""
         fill
-        // Only the product-detail hero is a plausible LCP element; catalog tiles
-        // stay at the default lazy loading.
+        // The product-detail hero and the first catalog row are the LCP candidates;
+        // every other tile stays at the default lazy loading.
         preload={large}
+        loading={priority ? "eager" : undefined}
+        fetchPriority={priority ? "high" : undefined}
         sizes={large ? "(min-width: 768px) 60vw, 100vw" : "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw"}
         onError={() => setFailed(true)}
         className="object-cover"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CategoryDto } from "@repo/shared/schemas";
 import { CartButton } from "@/components/cart-button";
 import { ThemeToggleSlot } from "@/components/theme-toggle-slot";
+import { catalogHref } from "@/lib/search-params";
 import { Button, MenuBar, MenuBarActions, MenuBarBrand, MenuBarNav } from "@/ui";
 
 /*
@@ -9,7 +10,7 @@ import { Button, MenuBar, MenuBarActions, MenuBarBrand, MenuBarNav } from "@/ui"
   a search field wide enough to dominate the bar, a departments row, and account and
   cart affordances trailing right.
 
-  The search is a plain GET form. Submitting navigates to /?q=... with no JavaScript
+  The search is a plain GET form. Submitting navigates to /browse?q=... with no JavaScript
   involved, which is also what makes the result page linkable and cacheable.
 
   MenuBar.Nav is hidden below md: by the component itself, so the departments row is
@@ -36,7 +37,7 @@ export function SiteHeader({
         </MenuBarBrand>
 
         <MenuBarNav className="min-w-0 flex-1">
-          <form action="/" method="get" role="search" className="flex w-full max-w-2xl gap-2">
+          <form action="/browse" method="get" role="search" className="flex w-full max-w-2xl gap-2">
             <input
               type="search"
               name="q"
@@ -73,7 +74,7 @@ export function SiteHeader({
           {categories.map((category) => (
             <li key={category.slug}>
               <Link
-                href={`/?category=${encodeURIComponent(category.slug)}`}
+                href={catalogHref(new URLSearchParams({ category: category.slug }))}
                 aria-current={activeCategories.includes(category.slug) ? "page" : undefined}
                 className={`block rounded px-2.5 py-1 whitespace-nowrap hover:bg-surface-hover hover:text-text ${
                   activeCategories.includes(category.slug)
