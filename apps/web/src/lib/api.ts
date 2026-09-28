@@ -38,14 +38,25 @@ export class ApiError extends Error {
   This is also the other half of what makes @repo/shared worth having: the exact
   object that validates the response on the server validates it again on the client.
 */
+/*
+  Per-call `next` controls Next's own server-side Data Cache and is independent of
+  the API's response headers — apps/api sends Cache-Control: no-store on every
+  product route regardless, which still governs a browser or proxy calling :3001
+  directly. The two don't conflict; they cache different hops.
+
+  Passing both `cache: "no-store"` and `next.revalidate` in the same call is
+  rejected by Next, so a call either opts into a revalidate window via `next` or
+  falls back to the always-live no-store default — never both.
+*/
 const request = async <T>(
   path: string,
   parse: (data: unknown) => T,
-  init?: RequestInit,
+  init?: RequestInit & { next?: NextFetchRequestConfig },
 ): Promise<T> => {
+  const { next, ...rest } = init ?? {};
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { cache: "no-store", ...init });
+    response = await fetch(`${API_URL}${path}`, next ? { next, ...rest } : { cache: "no-store", ...rest });
   } catch (cause) {
     throw new ApiUnavailableError(`Could not reach the API at ${API_URL}`, { cause });
   }
@@ -63,14 +74,23 @@ const request = async <T>(
   return parse(await response.json());
 };
 
+// A ~60s-stale price or stock badge on the grid is a normal e-commerce trade-off.
+// It never reaches the trust boundary: ProductBuyBox re-fetches this same product
+// live on mount, and checkout re-verifies server-side regardless.
 export const fetchCatalog = (search: URLSearchParams): Promise<CatalogPage> =>
-  request(`/products?${search.toString()}`, (data) => catalogPage.parse(data));
+  request(`/products?${search.toString()}`, (data) => catalogPage.parse(data), {
+    next: { revalidate: 60, tags: ["products"] },
+  });
 
 export const fetchProduct = (slug: string): Promise<ProductDto> =>
-  request(`/products/${encodeURIComponent(slug)}`, (data) => productDto.parse(data));
+  request(`/products/${encodeURIComponent(slug)}`, (data) => productDto.parse(data), {
+    next: { revalidate: 60, tags: ["products", `product:${slug}`] },
+  });
 
 export const fetchCategories = (): Promise<CategoryDto[]> =>
-  request("/categories", (data) => categoryList.parse(data));
+  request("/categories", (data) => categoryList.parse(data), {
+    next: { revalidate: 60, tags: ["products"] },
+  });
 
 export const fetchOrder = (id: string): Promise<OrderDto> =>
   request(`/orders/${encodeURIComponent(id)}`, (data) => orderDto.parse(data));

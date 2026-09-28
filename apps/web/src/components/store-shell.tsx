@@ -51,7 +51,12 @@ export async function StoreShell({
           >
             catalyst-ui
           </a>
-          . Not a real store — nothing here is for sale.
+          . Not a real store — nothing here is for sale. Photos provided by{" "}
+          {/* Required attribution under the Pexels API terms. */}
+          <a href="https://www.pexels.com" className="text-primary hover:underline">
+            Pexels
+          </a>
+          .
         </div>
       </LayoutFooter>
     </Layout>

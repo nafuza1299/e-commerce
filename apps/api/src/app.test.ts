@@ -53,6 +53,18 @@ describe("request validation", () => {
   });
 });
 
+describe("caching", () => {
+  it("forbids caching product responses, which carry live price and stock", async () => {
+    // A 400 returns before any query, and the header must hold on it too.
+    const res = await app.inject({ url: "/products?cursor=not-a-real-cursor" });
+    expect(res.headers["cache-control"]).toBe("no-store");
+  });
+
+  it("leaves unrelated routes alone", async () => {
+    expect((await app.inject({ url: "/health" })).headers["cache-control"]).toBeUndefined();
+  });
+});
+
 describe("openapi document", () => {
   it("is generated from the shared Zod schemas", () => {
     const paths = app.swagger().paths ?? {};

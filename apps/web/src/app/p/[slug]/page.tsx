@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AddToCart } from "@/components/add-to-cart";
+import { ProductBuyBox } from "@/components/product-buy-box";
+import { ProductImage } from "@/components/product-image";
 import { StoreShell } from "@/components/store-shell";
-import { NotFoundError, fetchProduct, formatPrice } from "@/lib/api";
+import { NotFoundError, fetchProduct } from "@/lib/api";
 import { LayoutContent, Tag } from "@/ui";
 
 type Params = Promise<{ slug: string }>;
@@ -23,14 +24,6 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const product = await load((await params).slug);
   return { title: `${product.name} · catalyst-commerce`, description: product.description };
 }
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter((w) => /^[A-Za-z0-9]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0]!.toUpperCase())
-    .join("");
 
 export default async function ProductPage({ params }: { params: Params }) {
   const product = await load((await params).slug);
@@ -57,17 +50,16 @@ export default async function ProductPage({ params }: { params: Params }) {
               Stacks on narrow screens, where the image comes first. */}
           <div className="grid gap-8 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             <div className="rounded-lg border border-border bg-surface p-6">
-              {product.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.imageUrl} alt="" className="aspect-square w-full rounded-md object-cover" />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="flex aspect-square w-full items-center justify-center rounded-md bg-surface-hover text-6xl font-semibold text-text-muted"
-                >
-                  {initials(product.name)}
-                </div>
-              )}
+              <ProductImage src={product.imageUrl} name={product.name} large />
+              {product.imageUrl && product.imageCreditName && product.imageCreditUrl ? (
+                <p className="mt-3 text-xs text-text-muted">
+                  Photo by{" "}
+                  <a href={product.imageCreditUrl} className="hover:text-text hover:underline">
+                    {product.imageCreditName}
+                  </a>{" "}
+                  on Pexels
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -82,21 +74,9 @@ export default async function ProductPage({ params }: { params: Params }) {
                 ))}
               </div>
 
-              <p className="mt-6 text-3xl font-semibold">{formatPrice(product.priceCents)}</p>
-
-              <div className="mt-3">
-                {product.stock === 0 ? (
-                  <Tag color="red">Out of stock</Tag>
-                ) : product.stock <= 8 ? (
-                  <Tag color="amber">Only {product.stock} left</Tag>
-                ) : (
-                  <Tag color="green">In stock</Tag>
-                )}
-              </div>
-
-              <div className="mt-6">
-                <AddToCart product={product} />
-              </div>
+              {/* Keyed so moving between products resets it instead of showing the
+                  previous product's price until the refetch lands. */}
+              <ProductBuyBox key={product.id} initial={product} />
 
               <div className="mt-8 border-t border-border pt-6">
                 <h2 className="text-sm font-semibold">About this item</h2>

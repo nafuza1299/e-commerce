@@ -35,6 +35,9 @@ export const products = pgTable(
     description: text("description").notNull().default(""),
     priceCents: integer("price_cents").notNull(),
     imageUrl: text("image_url"),
+    // Stock-photo attribution: the photographer, and the photo's page on its source site.
+    imageCreditName: text("image_credit_name"),
+    imageCreditUrl: text("image_credit_url"),
     stock: integer("stock").notNull().default(0),
     status: productStatus("status").notNull().default("draft"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

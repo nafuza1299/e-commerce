@@ -28,6 +28,8 @@ export const productDto = z.object({
   description: z.string(),
   priceCents: z.number().int(),
   imageUrl: z.string().nullable(),
+  imageCreditName: z.string().nullable(),
+  imageCreditUrl: z.string().nullable(),
   stock: z.number().int(),
   categories: z.array(z.object({ slug: z.string(), name: z.string() })),
 });

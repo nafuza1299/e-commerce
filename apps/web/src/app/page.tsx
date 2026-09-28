@@ -67,6 +67,15 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
 
   const items = page?.items ?? [];
   const paging = params.cursor !== undefined;
+  // Names come from the fetched list, not the URL, so an unknown slug is ignored
+  // rather than echoed into the heading.
+  const categoryNames = categories
+    .filter((c) => activeCategories.includes(c.slug))
+    .map((c) => c.name)
+    .join(", ");
+  const heading = query
+    ? `Results for “${query}”${categoryNames ? ` in ${categoryNames}` : ""}`
+    : categoryNames || "All products";
   const firstPageHref = (() => {
     const search = toQuery(params);
     search.delete("cursor");
@@ -90,9 +99,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
           <div className="mx-auto max-w-7xl px-4 py-6">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
               <div>
-                <h1 className="text-xl font-semibold">
-                  {query ? `Results for “${query}”` : "All products"}
-                </h1>
+                <h1 className="text-xl font-semibold">{heading}</h1>
                 <p className="mt-0.5 text-sm text-text-muted">
                   {/* Counts this page, not the whole result set. Keyset pagination
                       deliberately never runs a COUNT over the filtered set, so claiming

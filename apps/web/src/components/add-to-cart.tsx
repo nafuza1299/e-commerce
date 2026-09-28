@@ -18,6 +18,21 @@ export function AddToCart({ product }: { product: ProductDto }) {
     );
   }
 
+  // The cart already holds every unit there is. Checkout re-checks stock on the
+  // server regardless; this just stops the shopper building a cart that will fail.
+  if (inCart >= product.stock) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Button disabled size="lg">
+          All in your cart
+        </Button>
+        <p className="text-sm text-text-muted" aria-live="polite">
+          {inCart} in your cart, no more in stock
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <Button
